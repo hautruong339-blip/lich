@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lịch LabGuard - Sửa Nhanh</title>
+    <title>LabGuard - Lịch & Giờ Thực</title>
     <style>
-        :root {
-            --red: #d93025;     /* Trực */
-            --green: #1e8e3e;   /* Ca 6h */
-            --blue: #1a73e8;    /* Ca 5h */
-            --conflict-bg: #fce8e6;
-        }
-
+        :root { --red: #d93025; --green: #1e8e3e; --blue: #1a73e8; --conflict-bg: #fce8e6; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; background: #fff; }
         
+        /* Header với Đồng hồ */
+        header { 
+            padding: 10px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #ddd; 
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .info-area { display: flex; flex-direction: column; }
+        #monthLabel { font-weight: bold; font-size: 1.1rem; color: #3c4043; }
+        #digitalClock { font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; color: #1a73e8; font-weight: bold; margin-top: 2px; }
+
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex: 1; background: #dadce0; gap: 1px; }
         .weekday { background: #f8f9fa; text-align: center; font-size: 0.75rem; padding: 10px 0; font-weight: bold; color: #70757a; }
-        
         .day { background: #fff; padding: 4px; min-height: 90px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .day-num { font-size: 0.85rem; color: #70757a; margin-bottom: 2px; }
         .today .day-num { background: #1a73e8; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
+        
         .conflict { background-color: var(--conflict-bg) !important; box-shadow: inset 0 0 0 2px var(--red); }
-
         .note-tag { font-size: 0.7rem; color: #fff; padding: 2px 4px; border-radius: 4px; margin-bottom: 2px; text-align: center; font-weight: 500; cursor: pointer; }
         .tag-red { background: var(--red); }
         .tag-green { background: var(--green); }
@@ -42,37 +47,33 @@
 <body>
 
 <header>
-    <div style="font-weight:bold; font-size: 1.2rem;" id="monthLabel">Tháng 1, 2026</div>
-    <div>
-        <button onclick="window.navMonth(-1)" style="border:none; background:none; font-size:1.8rem;">‹</button>
-        <button onclick="window.navMonth(1)" style="border:none; background:none; font-size:1.8rem;">›</button>
+    <div class="info-area">
+        <div id="monthLabel">Tháng 1, 2026</div>
+        <div id="digitalClock">00:00:00</div>
+    </div>
+    <div style="display:flex; gap:5px;">
+        <button id="prevMonth" style="border:none; background:none; font-size:1.8rem; color:#5f6368;">‹</button>
+        <button id="nextMonth" style="border:none; background:none; font-size:1.8rem; color:#5f6368;">›</button>
     </div>
 </header>
 
-<div class="calendar-grid" id="grid">
-    <div class="weekday">CN</div><div class="weekday">T2</div><div class="weekday">T3</div>
-    <div class="weekday">T4</div><div class="weekday">T5</div><div class="weekday">T6</div>
-    <div class="weekday">T7</div>
-</div>
+<div class="calendar-grid" id="grid"></div>
 
-<div class="overlay" id="overlay" onclick="window.closeMenu()"></div>
+<div class="overlay" id="overlay"></div>
 <div class="quick-menu" id="quickMenu">
     <div id="targetDate" style="margin-bottom:15px; font-weight:bold; color:#1a73e8; font-size: 1.1rem;"></div>
     <div class="menu-grid">
-        <button class="btn-quick" style="background:var(--red)" onclick="window.saveNote('Trực CM', 'red')">Trực CM</button>
-        <button class="btn-quick" style="background:var(--red)" onclick="window.saveNote('Trực HC', 'red')">Trực HC</button>
-        <button class="btn-quick" style="background:var(--green)" onclick="window.saveNote('HC 6h', 'green')">HC 6h</button>
-        <button class="btn-quick" style="background:var(--green)" onclick="window.saveNote('LM 6h', 'green')">LM 6h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="window.saveNote('CM 5h', 'blue')">CM 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="window.saveNote('TN 5h', 'blue')">TN 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="window.saveNote('LM1 5h', 'blue')">LM1 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="window.saveNote('LM2 5h', 'blue')">LM2 5h</button>
-        
-        <button class="btn-quick btn-white" onclick="window.customWhiteNote()">+ Ghi chú trắng</button>
-        
-        <button id="btnDeleteItem" class="btn-quick btn-delete-item" onclick="window.deleteCurrentItem()">XÓA RIÊNG THẺ NÀY</button>
-        
-        <button class="btn-quick btn-xoa-all" onclick="window.clearDay()">XÓA HẾT CẢ NGÀY</button>
+        <button class="btn-save btn-quick" style="background:var(--red)" data-text="Trực CM" data-color="red">Trực CM</button>
+        <button class="btn-save btn-quick" style="background:var(--red)" data-text="Trực HC" data-color="red">Trực HC</button>
+        <button class="btn-save btn-quick" style="background:var(--green)" data-text="HC 6h" data-color="green">HC 6h</button>
+        <button class="btn-save btn-quick" style="background:var(--green)" data-text="LM 6h" data-color="green">LM 6h</button>
+        <button class="btn-save btn-quick" style="background:var(--blue)" data-text="CM 5h" data-color="blue">CM 5h</button>
+        <button class="btn-save btn-quick" style="background:var(--blue)" data-text="TN 5h" data-color="blue">TN 5h</button>
+        <button class="btn-save btn-quick" style="background:var(--blue)" data-text="LM1 5h" data-color="blue">LM1 5h</button>
+        <button class="btn-save btn-quick" style="background:var(--blue)" data-text="LM2 5h" data-color="blue">LM2 5h</button>
+        <button class="btn-white btn-quick" id="btnCustomWhite">+ Ghi chú trắng</button>
+        <button id="btnDeleteItem" class="btn-quick btn-delete-item">XÓA RIÊNG THẺ NÀY</button>
+        <button class="btn-xoa-all btn-quick" id="btnXoaAll">XÓA HẾT CẢ NGÀY</button>
     </div>
 </div>
 
@@ -86,19 +87,28 @@
 
     let viewDate = new Date();
     let selectedKey = "";
-    let editingColor = null; // Dùng để biết đang sửa màu nào
+    let editingColor = null;
+
+    // HÀM CẬP NHẬT ĐỒNG HỒ
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('digitalClock').innerText = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
     function render() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        const labels = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-        labels.forEach(l => {
+        ["CN", "T2", "T3", "T4", "T5", "T6", "T7"].forEach(l => {
             const div = document.createElement('div'); div.className = 'weekday'; div.innerText = l; grid.appendChild(div);
         });
 
         const y = viewDate.getFullYear(), m = viewDate.getMonth();
         document.getElementById('monthLabel').innerText = `Tháng ${m + 1}, ${y}`;
-
         const firstDay = new Date(y, m, 1).getDay();
         const totalDays = new Date(y, m + 1, 0).getDate();
 
@@ -117,82 +127,71 @@
                 const tag = document.createElement('div');
                 tag.className = `note-tag tag-${item.color}`;
                 tag.innerText = item.text;
-                tag.onclick = (e) => {
-                    e.stopPropagation();
-                    window.openEdit(key, item.color, d, m+1, y);
-                };
+                tag.onclick = (e) => { e.stopPropagation(); openEdit(key, item.color, d, m+1, y); };
                 div.appendChild(tag);
             });
-
-            div.onclick = () => window.openEdit(key, null, d, m+1, y);
+            div.onclick = () => openEdit(key, null, d, m+1, y);
             grid.appendChild(div);
         }
     }
 
-    window.openEdit = (key, color, d, m, y) => {
-        selectedKey = key;
-        editingColor = color; // Nếu nhấn vào thẻ, nó sẽ mang màu đó
+    function openEdit(key, color, d, m, y) {
+        selectedKey = key; editingColor = color;
         document.getElementById('targetDate').innerText = `Ngày ${d}/${m}/${y} ${color ? '(Sửa ca)' : ''}`;
         document.getElementById('btnDeleteItem').style.display = color ? 'block' : 'none';
         document.getElementById('quickMenu').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
-    };
+    }
 
-    window.saveNote = (text, color) => {
-        let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
-        
-        // Nếu đang sửa màu cũ hoặc chọn màu mới trùng màu cũ -> Thay thế
-        const existingIndex = data.findIndex(i => i.color === color);
-        if (existingIndex > -1) {
-            data[existingIndex].text = text;
-        } else {
-            data.push({ text, color });
-        }
-
-        localStorage.setItem(selectedKey, JSON.stringify(data));
-        set(ref(db, 'lich_truc/' + selectedKey), data);
-        window.closeMenu();
-        render();
-    };
-
-    window.deleteCurrentItem = () => {
-        if (!editingColor) return;
-        let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
-        data = data.filter(i => i.color !== editingColor);
-        
-        if (data.length === 0) {
-            localStorage.removeItem(selectedKey);
-            set(ref(db, 'lich_truc/' + selectedKey), null);
-        } else {
-            localStorage.setItem(selectedKey, JSON.stringify(data));
-            set(ref(db, 'lich_truc/' + selectedKey), data);
-        }
-        window.closeMenu();
-        render();
-    };
-
-    window.customWhiteNote = () => {
-        const txt = prompt("Ghi chú trắng:");
-        if (txt) window.saveNote(txt, 'white');
-    };
-
-    window.clearDay = () => {
-        localStorage.removeItem(selectedKey);
-        set(ref(db, 'lich_truc/' + selectedKey), null);
-        window.closeMenu();
-        render();
-    };
-
-    window.closeMenu = () => {
+    function closeMenu() {
         document.getElementById('quickMenu').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
+    }
+
+    document.getElementById('overlay').onclick = closeMenu;
+    document.getElementById('prevMonth').onclick = () => { viewDate.setMonth(viewDate.getMonth() - 1); render(); };
+    document.getElementById('nextMonth').onclick = () => { viewDate.setMonth(viewDate.getMonth() + 1); render(); };
+    
+    document.querySelectorAll('.btn-save').forEach(btn => {
+        btn.onclick = () => {
+            const text = btn.getAttribute('data-text');
+            const color = btn.getAttribute('data-color');
+            let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
+            const idx = data.findIndex(i => i.color === color);
+            if (idx > -1) data[idx].text = text; else data.push({ text, color });
+            localStorage.setItem(selectedKey, JSON.stringify(data));
+            set(ref(db, 'lich_truc/' + selectedKey), data);
+            closeMenu(); render();
+        };
+    });
+
+    document.getElementById('btnCustomWhite').onclick = () => {
+        const txt = prompt("Ghi chú trắng:");
+        if (txt) {
+            let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
+            const idx = data.findIndex(i => i.color === 'white');
+            if (idx > -1) data[idx].text = txt; else data.push({ text: txt, color: 'white' });
+            localStorage.setItem(selectedKey, JSON.stringify(data));
+            set(ref(db, 'lich_truc/' + selectedKey), data);
+            closeMenu(); render();
+        }
     };
 
-    window.navMonth = (dir) => { viewDate.setMonth(viewDate.getMonth() + dir); render(); };
+    document.getElementById('btnDeleteItem').onclick = () => {
+        let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
+        data = data.filter(i => i.color !== editingColor);
+        if (data.length === 0) { localStorage.removeItem(selectedKey); set(ref(db, 'lich_truc/' + selectedKey), null); }
+        else { localStorage.setItem(selectedKey, JSON.stringify(data)); set(ref(db, 'lich_truc/' + selectedKey), data); }
+        closeMenu(); render();
+    };
+
+    document.getElementById('btnXoaAll').onclick = () => {
+        localStorage.removeItem(selectedKey); set(ref(db, 'lich_truc/' + selectedKey), null);
+        closeMenu(); render();
+    };
 
     onValue(ref(db, 'lich_truc/'), (snapshot) => {
-        const d = snapshot.val();
-        localStorage.clear();
+        const d = snapshot.val(); localStorage.clear();
         if (d) Object.keys(d).forEach(k => localStorage.setItem(k, JSON.stringify(d[k])));
         render();
     });
