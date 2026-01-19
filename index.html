@@ -3,130 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LabGuard - Bản Sửa Lỗi Mobile</title>
+    <title>LabGuard - QUẢN LÝ LƯƠNG</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        :root { --red: #d93025; --green: #1e8e3e; --blue: #1a73e8; --conflict-bg: #fce8e6; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --blue: #0d47a1; --yellow: #ffeb3b; --dark: #1a1a1a; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
+        /* CỐ ĐỊNH CHIỀU CAO THEO MÀN HÌNH THỰC TẾ (SVH) */
         html, body { 
-            height: 100%; 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; /* Chống cuộn toàn trang gây khuất menu */
-            background: #fff;
-        }
-
-        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; }
-        
-        header { 
-            padding: 10px 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid #ddd; 
+            height: 100vh; height: 100svh; 
+            width: 100vw;
+            overflow: hidden; 
             background: #fff; 
-            height: 60px; /* Cố định chiều cao header */
-            flex-shrink: 0;
+            font-family: -apple-system, sans-serif; 
         }
+        body { display: flex; flex-direction: column; }
 
-        #monthLabel { font-weight: bold; font-size: 1.1rem; }
-        #digitalClock { font-family: monospace; font-size: 0.9rem; color: var(--blue); font-weight: bold; }
+        /* HEADER SIÊU GỌN (40px) */
+        header { 
+            background: var(--blue); color: white; padding: 0 10px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            height: 40px; flex-shrink: 0;
+        }
+        .header-left h1 { font-size: 0.9rem; color: var(--yellow); }
+        .header-left h2 { font-size: 0.55rem; font-weight: normal; opacity: 0.8; }
+        .nav-group { display: flex; gap: 5px; }
+        .btn-nav { background: rgba(255,255,255,0.2); color: white; border: none; width: 28px; height: 28px; border-radius: 4px; font-size: 0.9rem; }
 
+        /* LỊCH: ÉP TỶ LỆ TUYỆT ĐỐI */
         .calendar-container { 
             flex: 1; 
-            overflow-y: auto; 
-            background: #dadce0; 
+            background: #ccc;
+            padding: 1px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-
         .calendar-grid { 
             display: grid; 
             grid-template-columns: repeat(7, 1fr); 
+            grid-template-rows: 20px repeat(6, 1fr); 
             gap: 1px; 
-            background: #dadce0;
+            height: 100%;
         }
-
-        .weekday { 
-            background: #f8f9fa; 
-            text-align: center; 
-            font-size: 0.7rem; 
-            padding: 8px 0; 
-            font-weight: bold; 
-            color: #70757a; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-        }
+        .weekday { background: #f8f9fa; text-align: center; font-size: 0.6rem; font-weight: bold; color: var(--blue); display: flex; align-items: center; justify-content: center; }
+        .day { background: white; padding: 1px; display: flex; flex-direction: column; overflow: hidden; }
+        .day-num { font-size: 0.65rem; font-weight: bold; color: #666; }
+        .today { background: #e3f2fd; }
+        .today .day-num { color: var(--blue); border-bottom: 2px solid var(--blue); }
         
-        .day { 
-            background: #fff; 
-            padding: 2px; 
-            min-height: 80px; /* Thu nhỏ để không bị chiếm chỗ */
-            display: flex; 
-            flex-direction: column; 
-        }
+        /* TAG GHI CHÚ */
+        .note-tag { font-size: 0.5rem; color: #fff; padding: 1px; border-radius: 2px; margin-bottom: 1px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; }
+        .tag-red { background: #d32f2f; }
+        .tag-green { background: #388e3c; }
+        .tag-blue { background: #1976d2; }
 
-        .day-num { font-size: 0.8rem; color: #70757a; margin-bottom: 2px; }
-        .today .day-num { background: var(--blue); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        
-        .conflict { background-color: var(--conflict-bg) !important; box-shadow: inset 0 0 0 1px var(--red); }
+        /* FOOTER (55px) - KHÔNG BAO GIỜ BỊ ĐẨY */
+        footer { 
+            background: var(--dark); color: white; padding: 5px 12px; 
+            height: 55px; flex-shrink: 0; border-top: 1px solid #444;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .stats-summary { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 2px; }
+        .stats-summary b { color: var(--yellow); }
+        .salary-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #555; padding-top: 3px; }
+        .salary-label { font-size: 0.7rem; font-weight: bold; color: #aaa; }
+        .salary-value { font-size: 1rem; color: var(--yellow); font-weight: bold; }
 
-        .note-tag { 
-            font-size: 0.6rem; 
-            color: #fff; 
-            padding: 2px; 
-            border-radius: 3px; 
-            margin-bottom: 1px; 
-            text-align: center; 
-            font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .tag-red { background: var(--red); }
-        .tag-green { background: var(--green); }
-        .tag-blue { background: var(--blue); }
-        .tag-white { background: #fff; color: #333; border: 1px solid #ccc; }
-
-        /* MODAL NỔI LÊN TRÊN CÙNG */
-        .overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 999; 
-        }
-        .quick-menu { 
-            display: none; 
-            position: fixed; 
-            bottom: 0; left: 0; right: 0; 
-            background: #fff; 
-            padding: 20px; 
-            border-radius: 20px 20px 0 0; 
-            z-index: 1000; 
-            max-height: 85vh; 
-            overflow-y: auto; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.3); 
-        }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-quick { border: none; padding: 14px; border-radius: 12px; color: #fff; font-weight: bold; font-size: 0.9rem; outline: none; }
-        .btn-white { background: #fff; color: #333; border: 1px solid #aaa; grid-column: span 2; }
-        .btn-delete-item { background: #ff9800; color: white; grid-column: span 2; display: none; margin-top: 5px; }
-        .btn-xoa-all { background: #e8eaed; color: #3c4043; grid-column: span 2; margin-top: 10px; padding: 10px; }
+        /* MENU LỰA CHỌN - ĐẦY ĐỦ CÁC NÚT */
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; }
+        .quick-menu { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px; border-radius: 12px 12px 0 0; z-index: 1000; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .btn-act { border: none; padding: 10px; border-radius: 6px; color: white; font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="info-area">
-        <div id="monthLabel">Tháng 1, 2026</div>
-        <div id="digitalClock">00:00:00</div>
+    <div class="header-left">
+        <h2>XÉT NGHIỆM - BVUB</h2>
+        <h1 id="monthText">Tháng 01 / 2026</h1>
     </div>
-    <div style="display:flex; gap:10px;">
-        <button onclick="changeMonth(-1)" style="border:none; background:none; font-size:2rem; color:var(--blue);">‹</button>
-        <button onclick="changeMonth(1)" style="border:none; background:none; font-size:2rem; color:var(--blue);">›</button>
+    <div class="nav-group">
+        <button class="btn-nav" onclick="changeMonth(-1)">❮</button>
+        <button class="btn-nav" onclick="changeMonth(1)">❯</button>
     </div>
 </header>
 
@@ -134,90 +96,105 @@
     <div class="calendar-grid" id="grid"></div>
 </div>
 
+<footer>
+    <div class="stats-summary">
+        <span>5H: <b id="count5h">0</b></span>
+        <span>6H: <b id="count6h">0</b></span>
+        <span>TRỰC: <b id="countTruc">0</b></span>
+    </div>
+    <div class="salary-row">
+        <div class="salary-label">TỔNG LƯƠNG DỰ KIẾN:</div>
+        <div class="salary-value" id="totalSalary">0 VNĐ</div>
+    </div>
+</footer>
+
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 <div class="quick-menu" id="quickMenu">
-    <div id="targetDate" style="margin-bottom:15px; font-weight:bold; color:var(--blue); font-size: 1rem;"></div>
+    <div id="targetDate" style="text-align:center; font-weight:bold; margin-bottom:8px; color:var(--blue); font-size:0.85rem;"></div>
     <div class="menu-grid">
-        <button class="btn-quick" style="background:var(--red)" onclick="saveNote('Trực CM', 'red')">Trực CM</button>
-        <button class="btn-quick" style="background:var(--red)" onclick="saveNote('Trực HC', 'red')">Trực HC</button>
-        <button class="btn-quick" style="background:var(--green)" onclick="saveNote('HC 6h', 'green')">HC 6h</button>
-        <button class="btn-quick" style="background:var(--green)" onclick="saveNote('LM 6h', 'green')">LM 6h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="saveNote('CM 5h', 'blue')">CM 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="saveNote('TN 5h', 'blue')">TN 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="saveNote('LM1 5h', 'blue')">LM1 5h</button>
-        <button class="btn-quick" style="background:var(--blue)" onclick="saveNote('LM2 5h', 'blue')">LM2 5h</button>
-        <button class="btn-quick btn-white" onclick="customWhiteNote()">+ Ghi chú trắng</button>
-        <button id="btnDeleteItem" class="btn-quick btn-delete-item" onclick="deleteCurrentItem()">XÓA RIÊNG THẺ NÀY</button>
-        <button class="btn-quick btn-xoa-all" onclick="clearDay()">XÓA HẾT CẢ NGÀY</button>
+        <button class="btn-act" style="background:#d32f2f" onclick="saveNote('Trực CM', 'red')">Trực CM</button>
+        <button class="btn-act" style="background:#d32f2f" onclick="saveNote('Trực HC', 'red')">Trực HC</button>
+        <button class="btn-act" style="background:#388e3c" onclick="saveNote('HC 6h', 'green')">HC 6h</button>
+        <button class="btn-act" style="background:#388e3c" onclick="saveNote('LM 6h', 'green')">LM 6h</button>
+        <button class="btn-act" style="background:#1976d2" onclick="saveNote('CM 5h', 'blue')">CM 5h</button>
+        <button class="btn-act" style="background:#1976d2" onclick="saveNote('TN 5h', 'blue')">TN 5h</button>
+        <button class="btn-act" style="background:#1976d2" onclick="saveNote('LM1 5h', 'blue')">LM1 5h</button>
+        <button class="btn-act" style="background:#1976d2" onclick="saveNote('LM2 5h', 'blue')">LM2 5h</button>
+        <button class="btn-act" style="background:#777; grid-column: span 2;" onclick="clearDay()">XÓA NGÀY NÀY</button>
     </div>
 </div>
 
 <script>
     var firebaseConfig = { databaseURL: "https://aistudio-91002-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
 
     var viewDate = new Date();
     var selectedKey = "";
-    var editingColor = null;
-
-    function updateClock() {
-        var now = new Date();
-        document.getElementById('digitalClock').innerText = now.toLocaleTimeString('vi-VN');
-    }
-    setInterval(updateClock, 1000); updateClock();
 
     function render() {
         var grid = document.getElementById('grid');
         grid.innerHTML = '';
-        var days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-        days.forEach(function(d) {
-            var div = document.createElement('div'); div.className = 'weekday'; div.innerText = d; grid.appendChild(div);
+        ["CN", "T2", "T3", "T4", "T5", "T6", "T7"].forEach(d => {
+            let div = document.createElement('div'); div.className = 'weekday'; div.innerText = d; grid.appendChild(div);
         });
 
         var y = viewDate.getFullYear(), m = viewDate.getMonth();
-        document.getElementById('monthLabel').innerText = "Tháng " + (m + 1) + ", " + y;
+        document.getElementById('monthText').innerText = `Tháng ${(m + 1).toString().padStart(2, '0')} / ${y}`;
 
         var firstDay = new Date(y, m, 1).getDay();
         var totalDays = new Date(y, m + 1, 0).getDate();
+        let s = { c5h: 0, c6h: 0, cTruc: 0, money: 0 };
 
-        for(var i=0; i<firstDay; i++) {
-            var empty = document.createElement('div'); empty.className = 'day'; grid.appendChild(empty);
-        }
+        for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div')).className = 'day';
 
-        for(var d=1; d<=totalDays; d++) {
-            (function(dayNum) {
-                var key = y + "-" + (m + 1) + "-" + dayNum;
-                var div = document.createElement('div');
-                div.className = 'day';
-                if (new Date().toDateString() === new Date(y, m, dayNum).toDateString()) div.classList.add('today');
-                div.innerHTML = '<div class="day-num">' + dayNum + '</div>';
+        for(let d=1; d<=totalDays; d++) {
+            let key = `${y}-${m + 1}-${d}`;
+            let isToday = new Date().toDateString() === new Date(y, m, d).toDateString();
+            let div = document.createElement('div');
+            div.className = `day ${isToday ? 'today' : ''}`;
+            div.innerHTML = `<div class="day-num">${d}</div>`;
+            
+            let data = JSON.parse(localStorage.getItem(key) || "[]");
+            data.forEach(item => {
+                let tag = document.createElement('div');
+                tag.className = `note-tag tag-${item.color}`;
+                tag.innerText = item.text;
+                div.appendChild(tag);
                 
-                var data = JSON.parse(localStorage.getItem(key) || "[]");
-                var hasGreen = data.some(function(i) { return i.color === 'green' });
-                var hasBlue = data.some(function(i) { return i.color === 'blue' });
-                if (hasGreen && hasBlue) div.classList.add('conflict');
-
-                data.forEach(function(item) {
-                    var tag = document.createElement('div');
-                    tag.className = 'note-tag tag-' + item.color;
-                    tag.innerText = item.text;
-                    tag.onclick = function(e) { e.stopPropagation(); openEdit(key, item.color, dayNum, m+1, y); };
-                    div.appendChild(tag);
-                });
-
-                div.onclick = function() { openEdit(key, null, dayNum, m+1, y); };
-                grid.appendChild(div);
-            })(d);
+                let t = item.text.toLowerCase();
+                if(t.includes('trực')) s.cTruc++;
+                if(t.includes('6h')) { s.c6h++; s.money += 360000; }
+                else if(t.includes('5h')) { s.c5h++; s.money += 660000; }
+            });
+            div.onclick = () => {
+                selectedKey = key;
+                document.getElementById('targetDate').innerText = `NGÀY ${d}/${m+1}/${y}`;
+                document.getElementById('quickMenu').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            };
+            grid.appendChild(div);
         }
+        document.getElementById('count5h').innerText = s.c5h;
+        document.getElementById('count6h').innerText = s.c6h;
+        document.getElementById('countTruc').innerText = s.cTruc;
+        document.getElementById('totalSalary').innerText = s.money.toLocaleString('vi-VN') + " VNĐ";
     }
 
-    window.openEdit = function(key, color, d, m, y) {
-        selectedKey = key; editingColor = color;
-        document.getElementById('targetDate').innerText = "Ngày " + d + "/" + m + "/" + y;
-        document.getElementById('btnDeleteItem').style.display = color ? 'block' : 'none';
-        document.getElementById('quickMenu').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
+    window.saveNote = function(text, color) {
+        let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
+        let idx = data.findIndex(i => i.color === color);
+        if (idx > -1) data[idx].text = text;
+        else data.push({ text: text, color: color });
+        localStorage.setItem(selectedKey, JSON.stringify(data));
+        db.ref('lich_truc/' + selectedKey).set(data);
+        closeMenu(); render();
+    }
+
+    window.clearDay = function() {
+        localStorage.removeItem(selectedKey);
+        db.ref('lich_truc/' + selectedKey).remove();
+        closeMenu(); render();
     }
 
     window.closeMenu = function() {
@@ -225,44 +202,15 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
-    window.saveNote = function(text, color) {
-        var data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
-        var idx = data.findIndex(function(i) { return i.color === color });
-        if (idx > -1) data[idx].text = text; else data.push({ text: text, color: color });
-        localStorage.setItem(selectedKey, JSON.stringify(data));
-        db.ref('lich_truc/' + selectedKey).set(data);
-        closeMenu(); render();
-    }
-
-    window.customWhiteNote = function() {
-        var txt = prompt("Ghi chú trắng:");
-        if (txt) window.saveNote(txt, 'white');
-    }
-
-    window.deleteCurrentItem = function() {
-        var data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
-        data = data.filter(function(i) { return i.color !== editingColor });
-        if (data.length === 0) {
-            localStorage.removeItem(selectedKey); db.ref('lich_truc/' + selectedKey).remove();
-        } else {
-            localStorage.setItem(selectedKey, JSON.stringify(data)); db.ref('lich_truc/' + selectedKey).set(data);
-        }
-        closeMenu(); render();
-    }
-
-    window.clearDay = function() {
-        localStorage.removeItem(selectedKey); db.ref('lich_truc/' + selectedKey).remove();
-        closeMenu(); render();
-    }
-
     window.changeMonth = function(dir) {
-        viewDate.setMonth(viewDate.getMonth() + dir); render();
+        viewDate.setMonth(viewDate.getMonth() + dir);
+        render();
     }
 
     db.ref('lich_truc/').on('value', function(snapshot) {
-        var d = snapshot.val();
-        localStorage.clear();
-        if (d) Object.keys(d).forEach(function(k) { localStorage.setItem(k, JSON.stringify(d[k])); });
+        let d = snapshot.val();
+        Object.keys(localStorage).forEach(k => { if(k.includes('-')) localStorage.removeItem(k); });
+        if (d) Object.keys(d).forEach(k => localStorage.setItem(k, JSON.stringify(d[k])));
         render();
     });
 </script>
