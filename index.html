@@ -8,82 +8,68 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        :root { --blue: #0d47a1; --yellow: #ffeb3b; --dark: #1a1a1a; }
+        :root { --blue: #0d47a1; --yellow: #ffeb3b; --dark: #1a1a1a; --red-warn: #ffebee; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         
-        /* CỐ ĐỊNH CHIỀU CAO THEO MÀN HÌNH THỰC TẾ (SVH) */
-        html, body { 
-            height: 100vh; height: 100svh; 
-            width: 100vw;
-            overflow: hidden; 
-            background: #fff; 
-            font-family: -apple-system, sans-serif; 
-        }
+        html, body { height: 100vh; width: 100vw; overflow: hidden; background: #fff; font-family: -apple-system, sans-serif; }
         body { display: flex; flex-direction: column; }
 
-        /* HEADER SIÊU GỌN (40px) */
         header { 
             background: var(--blue); color: white; padding: 0 10px; 
             display: flex; justify-content: space-between; align-items: center; 
-            height: 40px; flex-shrink: 0;
+            height: 45px; flex-shrink: 0;
         }
         .header-left h1 { font-size: 0.9rem; color: var(--yellow); }
-        .header-left h2 { font-size: 0.55rem; font-weight: normal; opacity: 0.8; }
-        .nav-group { display: flex; gap: 5px; }
-        .btn-nav { background: rgba(255,255,255,0.2); color: white; border: none; width: 28px; height: 28px; border-radius: 4px; font-size: 0.9rem; }
-
-        /* LỊCH: ÉP TỶ LỆ TUYỆT ĐỐI */
-        .calendar-container { 
-            flex: 1; 
-            background: #ccc;
-            padding: 1px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .calendar-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            grid-template-rows: 20px repeat(6, 1fr); 
-            gap: 1px; 
-            height: 100%;
-        }
-        .weekday { background: #f8f9fa; text-align: center; font-size: 0.6rem; font-weight: bold; color: var(--blue); display: flex; align-items: center; justify-content: center; }
-        .day { background: white; padding: 1px; display: flex; flex-direction: column; overflow: hidden; }
-        .day-num { font-size: 0.65rem; font-weight: bold; color: #666; }
-        .today { background: #e3f2fd; }
-        .today .day-num { color: var(--blue); border-bottom: 2px solid var(--blue); }
+        .header-left h2 { font-size: 0.6rem; font-weight: normal; opacity: 0.8; }
         
-        /* TAG GHI CHÚ */
-        .note-tag { font-size: 0.5rem; color: #fff; padding: 1px; border-radius: 2px; margin-bottom: 1px; text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; }
+        .nav-group { display: flex; gap: 5px; }
+        .btn-nav { background: rgba(255,255,255,0.2); color: white; border: none; width: 32px; height: 32px; border-radius: 4px; font-size: 1rem; }
+
+        .calendar-container { flex: 1; background: #ccc; padding: 1px; display: flex; flex-direction: column; overflow: hidden; }
+        .calendar-grid { 
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            grid-template-rows: 22px repeat(6, 1fr); 
+            gap: 1px; height: 100%; width: 100%;
+        }
+        
+        .weekday { background: #f8f9fa; text-align: center; font-size: 0.65rem; font-weight: bold; color: var(--blue); display: flex; align-items: center; justify-content: center; }
+        .day { background: white; padding: 1px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .day-num { font-size: 0.7rem; font-weight: bold; color: #666; margin-bottom: 1px; }
+        
+        /* HIỆU ỨNG BÁO ĐỎ Ô */
+        .conflict { background-color: var(--red-warn) !important; box-shadow: inset 0 0 0 1.5px #d32f2f; }
+        
+        .today { background: #e3f2fd; }
+        .today .day-num { color: var(--blue); border-bottom: 2px solid var(--blue); width: fit-content; }
+        
+        .note-tag { font-size: 0.52rem; color: #fff; padding: 1px 2px; border-radius: 2px; margin-bottom: 1px; text-align: center; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .tag-red { background: #d32f2f; }
         .tag-green { background: #388e3c; }
         .tag-blue { background: #1976d2; }
 
-        /* FOOTER (55px) - KHÔNG BAO GIỜ BỊ ĐẨY */
         footer { 
             background: var(--dark); color: white; padding: 5px 12px; 
-            height: 55px; flex-shrink: 0; border-top: 1px solid #444;
+            height: 60px; flex-shrink: 0; border-top: 1px solid #444;
             display: flex; flex-direction: column; justify-content: center;
         }
-        .stats-summary { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 2px; }
+        .stats-summary { display: flex; justify-content: space-around; font-size: 0.72rem; margin-bottom: 3px; }
         .stats-summary b { color: var(--yellow); }
-        .salary-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #555; padding-top: 3px; }
-        .salary-label { font-size: 0.7rem; font-weight: bold; color: #aaa; }
-        .salary-value { font-size: 1rem; color: var(--yellow); font-weight: bold; }
 
-        /* MENU LỰA CHỌN - ĐẦY ĐỦ CÁC NÚT */
+        .salary-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #555; padding-top: 4px; }
+        .salary-label { font-size: 0.72rem; font-weight: bold; color: #aaa; }
+        .salary-value { font-size: 1.05rem; color: var(--yellow); font-weight: bold; }
+
         .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; }
-        .quick-menu { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px; border-radius: 12px 12px 0 0; z-index: 1000; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .btn-act { border: none; padding: 10px; border-radius: 6px; color: white; font-weight: bold; font-size: 0.8rem; }
+        .quick-menu { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; border-radius: 12px 12px 0 0; z-index: 1000; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-act { border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="header-left">
-        <h2>XÉT NGHIỆM - BVUB</h2>
+        <h2>KHOA XÉT NGHIỆM - BVUB</h2>
         <h1 id="monthText">Tháng 01 / 2026</h1>
     </div>
     <div class="nav-group">
@@ -110,7 +96,7 @@
 
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 <div class="quick-menu" id="quickMenu">
-    <div id="targetDate" style="text-align:center; font-weight:bold; margin-bottom:8px; color:var(--blue); font-size:0.85rem;"></div>
+    <div id="targetDate" style="text-align:center; font-weight:bold; margin-bottom:10px; color:var(--blue);"></div>
     <div class="menu-grid">
         <button class="btn-act" style="background:#d32f2f" onclick="saveNote('Trực CM', 'red')">Trực CM</button>
         <button class="btn-act" style="background:#d32f2f" onclick="saveNote('Trực HC', 'red')">Trực HC</button>
@@ -128,7 +114,6 @@
     var firebaseConfig = { databaseURL: "https://aistudio-91002-default-rtdb.firebaseio.com/" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
-
     var viewDate = new Date();
     var selectedKey = "";
 
@@ -156,6 +141,24 @@
             div.innerHTML = `<div class="day-num">${d}</div>`;
             
             let data = JSON.parse(localStorage.getItem(key) || "[]");
+
+            // --- LOGIC KIỂM TRA RA TRỰC ---
+            // 1. Kiểm tra hôm trước có trực không
+            let prevDate = new Date(y, m, d - 1);
+            let prevKey = `${prevDate.getFullYear()}-${prevDate.getMonth() + 1}-${prevDate.getDate()}`;
+            let prevData = JSON.parse(localStorage.getItem(prevKey) || "[]");
+            let yesterdayHadTruc = prevData.some(i => i.text.toLowerCase().includes('trực'));
+            
+            // 2. Nếu hôm qua trực mà hôm nay có bất kỳ thẻ nào -> Báo đỏ (vì là ngày ra trực)
+            if (yesterdayHadTruc && data.length > 0) {
+                div.classList.add('conflict');
+            }
+
+            // 3. Logic cũ: Trùng cả 5h và 6h trong cùng 1 ngày cũng báo đỏ
+            let has5h = data.some(i => i.text.toLowerCase().includes('5h'));
+            let has6h = data.some(i => i.text.toLowerCase().includes('6h'));
+            if (has5h && has6h) div.classList.add('conflict');
+
             data.forEach(item => {
                 let tag = document.createElement('div');
                 tag.className = `note-tag tag-${item.color}`;
@@ -167,6 +170,7 @@
                 if(t.includes('6h')) { s.c6h++; s.money += 360000; }
                 else if(t.includes('5h')) { s.c5h++; s.money += 660000; }
             });
+
             div.onclick = () => {
                 selectedKey = key;
                 document.getElementById('targetDate').innerText = `NGÀY ${d}/${m+1}/${y}`;
@@ -184,8 +188,15 @@
     window.saveNote = function(text, color) {
         let data = JSON.parse(localStorage.getItem(selectedKey) || "[]");
         let idx = data.findIndex(i => i.color === color);
-        if (idx > -1) data[idx].text = text;
-        else data.push({ text: text, color: color });
+        if (idx > -1) {
+            data[idx].text = text;
+        } else {
+            if (data.length >= 3) {
+                alert("Ô lịch đã đầy!");
+                return;
+            }
+            data.push({ text: text, color: color });
+        }
         localStorage.setItem(selectedKey, JSON.stringify(data));
         db.ref('lich_truc/' + selectedKey).set(data);
         closeMenu(); render();
