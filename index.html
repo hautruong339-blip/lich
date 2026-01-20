@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LabGuard Pro - Fixed</title>
+    <title>LabGuard Pro - BVUB</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -12,39 +12,45 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         html, body { height: 100svh; width: 100vw; overflow: hidden; background: #fff; font-family: -apple-system, sans-serif; }
         body { display: flex; flex-direction: column; }
-        header { background: var(--blue); color: white; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; height: 45px; flex-shrink: 0; }
-        .header-left h1 { font-size: 0.9rem; color: var(--yellow); }
-        .btn-nav { background: rgba(255,255,255,0.2); color: white; border: none; width: 32px; height: 32px; border-radius: 4px; }
+
+        header { background: var(--blue); color: white; padding: 5px 12px; display: flex; justify-content: space-between; align-items: center; height: 50px; flex-shrink: 0; }
+        .header-left h2 { font-size: 0.6rem; font-weight: normal; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-left h1 { font-size: 1.25rem; color: var(--yellow); font-weight: 800; margin-top: -2px; }
+        
+        .btn-nav { background: rgba(255,255,255,0.2); color: white; border: none; width: 34px; height: 34px; border-radius: 6px; font-size: 1.1rem; }
+
         .calendar-container { flex: 1; background: #ccc; padding: 1px; display: flex; flex-direction: column; overflow: hidden; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 22px repeat(6, 1fr); gap: 1px; height: 100%; width: 100%; }
         .weekday { background: #f8f9fa; text-align: center; font-size: 0.65rem; font-weight: bold; color: var(--blue); display: flex; align-items: center; justify-content: center; }
-        .day { background: white; padding: 1px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .day-num { font-size: 0.7rem; font-weight: bold; color: #666; }
+        .day { background: white; padding: 1px; display: flex; flex-direction: column; overflow: hidden; position: relative; transition: 0.2s; }
+        .day-num { font-size: 0.75rem; font-weight: bold; color: #444; }
         
-        /* CẢNH BÁO ĐỎ KHI TRÙNG TUA HOẶC SAI QUY ĐỊNH */
+        /* CẢNH BÁO ĐỎ KHI TRÙNG TUA HOẶC TRÙNG MÀU */
         .conflict { background-color: var(--red-warn) !important; box-shadow: inset 0 0 0 2px #d32f2f; }
-        
         .today { background: #e3f2fd; }
+
         .note-tag { font-size: 0.52rem; color: #fff; padding: 1px 2px; border-radius: 2px; margin-bottom: 1px; text-align: center; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .tag-red { background: #d32f2f; }
         .tag-green { background: #388e3c; }
         .tag-blue { background: #1976d2; }
         .user-note { font-size: 0.5rem; color: #d32f2f; font-weight: bold; margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-top: 1px dashed #eee; padding-top: 1px; }
+
         footer { background: var(--dark); color: white; padding: 5px 12px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); min-height: 65px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
         .stats-summary { display: flex; justify-content: space-around; font-size: 0.72rem; margin-bottom: 4px; }
         .stats-summary b { color: var(--yellow); }
         .salary-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #555; padding-top: 4px; }
-        .salary-value { font-size: 1.05rem; color: var(--yellow); font-weight: bold; }
+        .salary-value { font-size: 1.1rem; color: var(--yellow); font-weight: bold; }
+
         .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; }
         .quick-menu { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); border-radius: 12px 12px 0 0; z-index: 1000; max-height: 85%; overflow-y: auto; }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-act { border: none; padding: 10px; border-radius: 8px; color: white; font-weight: bold; font-size: 0.8rem; }
+        .btn-act { border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; font-size: 0.85rem; }
         .note-input { width: 100%; padding: 10px; border: 2px solid var(--blue); border-radius: 8px; margin-top: 10px; font-size: 0.9rem; outline: none; }
     </style>
 </head>
 <body>
 <header>
-    <div class="header-left"><h2>XÉT NGHIỆM - BVUB</h2><h1 id="monthText">Tháng 01 / 2026</h1></div>
+    <div class="header-left"><h2>Xét Nghiệm - BVUB</h2><h1 id="monthText">Tháng 01 / 2026</h1></div>
     <div class="nav-group"><button class="btn-nav" onclick="changeMonth(-1)">❮</button><button class="btn-nav" onclick="changeMonth(1)">❯</button></div>
 </header>
 <div class="calendar-container"><div class="calendar-grid" id="grid"></div></div>
@@ -98,18 +104,27 @@
             let rawData = localStorage.getItem(key);
             let parsed = rawData ? JSON.parse(rawData) : {};
             if (Array.isArray(parsed)) parsed = { items: parsed, note: "" };
-            
             let items = parsed.items || [];
             let note = parsed.note || "";
 
-            // --- LOGIC BÁO ĐỎ (CONFLICT) ---
-            let has5h = items.some(i => i.text.toLowerCase().includes('5h'));
-            let has6h = items.some(i => i.text.toLowerCase().includes('6h'));
-            
-            // 1. Trùng cả 5h và 6h trong 1 ngày
-            if (has5h && has6h) div.classList.add('conflict');
+            // --- BÁO ĐỎ KHI TRÙNG MÀU HOẶC TRÙNG TUA ---
+            let colorsFound = {};
+            let isConflict = false;
+            let has5h = false, has6h = false;
 
-            // 2. Ra trực (Ngày trước trực, ngày sau có ca)
+            items.forEach(item => {
+                // Check trùng màu
+                if (colorsFound[item.color]) isConflict = true;
+                colorsFound[item.color] = true;
+                
+                // Check trùng tua 5h & 6h
+                if (item.text.toLowerCase().includes('5h')) has5h = true;
+                if (item.text.toLowerCase().includes('6h')) has6h = true;
+            });
+
+            if (isConflict || (has5h && has6h)) div.classList.add('conflict');
+
+            // Check ra trực
             let prevDate = new Date(y, m, d - 1);
             let prevKey = `${prevDate.getFullYear()}-${prevDate.getMonth() + 1}-${prevDate.getDate()}`;
             let prevRaw = localStorage.getItem(prevKey);
@@ -154,13 +169,12 @@
         if (Array.isArray(parsed)) parsed = { items: parsed, note: "" };
         let items = parsed.items || [];
         
-        // Nếu chọn Trực thì không xóa ca cũ, nếu chọn 5h/6h thì mới xóa loại cũ cùng nhóm
-        // Nhưng theo yêu cầu báo đỏ khi trùng, ta bỏ logic tự xóa ca khác loại để hiện màu đỏ
+        // Bấm cùng tên ca thì xóa, bấm khác tên ca (kể cả cùng màu) vẫn cho thêm để báo đỏ
         let idx = items.findIndex(i => i.text === text);
-        if (idx === -1) {
-            items.push({ text: text, color: color });
+        if (idx > -1) {
+            items.splice(idx, 1);
         } else {
-            items.splice(idx, 1); // Bấm lại lần nữa để xóa
+            items.push({ text: text, color: color });
         }
         
         parsed.items = items;
